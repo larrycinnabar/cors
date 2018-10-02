@@ -289,7 +289,9 @@ func (c *Cors) handlePreflight(w http.ResponseWriter, r *http.Request) {
 	if c.allowedOriginsAll && !c.allowCredentials {
 		headers.Set("Access-Control-Allow-Origin", "*")
 	} else {
-		headers.Set("Access-Control-Allow-Origin", origin)
+		if headers.Get("Access-Control-Allow-Origin") != origin {
+			headers.Set("Access-Control-Allow-Origin", origin)
+		}
 	}
 	// Spec says: Since the list of methods can be unbounded, simply returning the method indicated
 	// by Access-Control-Request-Method (if supported) can be enough
@@ -301,7 +303,9 @@ func (c *Cors) handlePreflight(w http.ResponseWriter, r *http.Request) {
 		headers.Set("Access-Control-Allow-Headers", strings.Join(reqHeaders, ", "))
 	}
 	if c.allowCredentials {
-		headers.Set("Access-Control-Allow-Credentials", "true")
+		if headers.Get("Access-Control-Allow-Credentials") != "true" {
+			headers.Set("Access-Control-Allow-Credentials", "true")
+		}
 	}
 	if c.maxAge > 0 {
 		headers.Set("Access-Control-Max-Age", strconv.Itoa(c.maxAge))
@@ -341,13 +345,17 @@ func (c *Cors) handleActualRequest(w http.ResponseWriter, r *http.Request) {
 	if c.allowedOriginsAll && !c.allowCredentials {
 		headers.Set("Access-Control-Allow-Origin", "*")
 	} else {
-		headers.Set("Access-Control-Allow-Origin", origin)
+		if headers.Get("Access-Control-Allow-Origin") != origin {
+			headers.Set("Access-Control-Allow-Origin", origin)
+		}
 	}
 	if len(c.exposedHeaders) > 0 {
 		headers.Set("Access-Control-Expose-Headers", strings.Join(c.exposedHeaders, ", "))
 	}
 	if c.allowCredentials {
-		headers.Set("Access-Control-Allow-Credentials", "true")
+		if headers.Get("Access-Control-Allow-Credentials") != "true" {
+			headers.Set("Access-Control-Allow-Credentials", "true")
+		}
 	}
 	c.logf("  Actual response added headers: %v", headers)
 }
